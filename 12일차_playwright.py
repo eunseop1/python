@@ -169,4 +169,76 @@ from playwright.sync_api import sync_playwright
 # 실습
 # 네이버에 RPA 검색
 # 뉴스 탭 이동
-# 뉴스 제목, 
+# 뉴스 제목, 내용, 주소를 엑셀로 저장
+# query_selector_all 사용
+
+import pandas as pd    
+    
+with sync_playwright() as p:
+    browser = p.chromium.launch(headless=False, args=["--start-maximized"])
+    page = browser.new_page(no_viewport=True)
+    # page.goto('https://search.naver.com/search.naver?query=RPA', wait_until='networkidle')
+    page.goto('https://naver.com', wait_until='networkidle')
+
+    page.fill('//*[@id="query"]', 'RPA')
+    
+    page.click('//*[@id="sform"]/fieldset/button')
+    
+    page.click('//*[@id="lnb"]/div[1]/div/div[1]/div/div[1]/div[1]/a')
+    
+    # //html/body/div[3]/div[2]/div/div[1]/section
+    
+    # elements_xpath = '//*[@id="main_pack"]/section/div[1]/div[2]/ul/li/div/div/div/a'
+    # elements_xpath = '//*[@id="main_pack"]/section'
+    # //*[@id="main_pack"]/section/div[1]/div[2]/ul
+    
+    # elements_xpath = '//*[@id="main_pack"]/section/div[1]/div[2]/ul'
+    elements_xpath = '//*[@id="main_pack"]/section/div[1]/div[2]/ul/li/div/div/div/a[2]'
+    # elements_xpath = page.get_attribute('//*[@id="main_pack"]/section/div[1]/div[2]/ul/li/div/div/div/a[1]', 'title')
+    
+    news_titles = []
+    news_elements = page.query_selector_all(elements_xpath)
+
+    # 각 요소에서 제목 추출
+    for element in news_elements:
+        # 요소 내에 있는 제목 텍스트 가져오기
+        title = element.inner_text()
+        # 추출된 제목을 리스트에 추가
+        news_titles.append(title)
+    
+    # news_elements = []
+    # news_elements = elements_xpath
+    
+    print(news_titles)
+    
+    # //*[@id="sp_nws6"]/div[1]/div/div[2]/a[2]
+    # //*[@id="main_pack"]/section
+    # sp_nws1 > div.news_wrap.api_ani_send > div > div.news_contents > a.news_tit
+    # //html/body/div[3]/div[2]/div/div[1]/section/div[1]/div[2]/ul/li[2]/div[1]/div/div[2]/a[2]
+    # //html/body/div[3]/div[2]/div/div[1]/section/div[1]/div[2]/ul/li[1]/div[1]/div/div[2]/a[2]
+    news_title = page.get_attribute('//html/body/div[3]/div[2]/div/div[1]/section/div[1]/div[2]/ul/li[1]/div[1]/div/div[2]/a[2]','title')
+    print(news_title)
+
+    # link_url = page.get_attribute('//*[@id="query"]', 'input')
+    
+    # page.goto(link_url)
+    
+    # page.click('//*[@id="lnb"]/div[1]/div/div[1]/div/div[1]/div[1]/a')
+    
+    # doc_src = page.get_attribute('//*[@id="frame_ex1"]','src')
+    
+    # docu_list = pd.read_html(link_url + doc_src, encoding='CP949')
+    
+    # df = docu_list[0]
+    
+    # df.columns = df.columns.droplevel(0)
+    # 컬럼 레벨 0 삭제
+    # (통화명, 통화명) 컬럼을
+    # 통화명 컬럼 처럼 간단히 하게 하기 위함
+    
+    # result_df = df.loc[df['매매기준율'] >= 1000 ,['통화명', '매매기준율']]
+    # result_df.to_excel('매매기준율이_천_이상인_통화명과_매매기준율.xlsx', index=False)
+    
+    input("asdasdsa")
+    
+    browser.close()
